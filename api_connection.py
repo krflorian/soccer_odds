@@ -159,10 +159,10 @@ data_ready = (data.join(rating_1)
                   .drop(['team_1', 'team_2', 'rating_1', 'rating_2', 'round'], axis=1))
 
 # save csv files
-data_ready.to_csv('bundesliga_2016_ready.csv')
-data_ready.to_csv('bundesliga_2016_full.csv')
+data_ready.to_csv('data\bundesliga_2016_ready.csv')
+data_ready.to_csv('data\bundesliga_2016_full.csv')
 
-f = open("bundesliga_2016_dict.txt","w")
+f = open("data\bundesliga_2016_dict.txt","w")
 f.write( str(table) )
 f.close()
 

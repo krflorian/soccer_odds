@@ -10,7 +10,7 @@ import requests
 import pandas as pd
 
 # get API key
-key = open('rapid_api_key.txt', 'r').read()
+key = open('data\rapid_api_key.txt', 'r').read()
 # create functions
 # get results
 def request_data(league='', fixtures_teams=''):
