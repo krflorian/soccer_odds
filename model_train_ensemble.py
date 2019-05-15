@@ -9,7 +9,7 @@ Ensemble Machine Learning
 import os
 os.chdir('E:\soccer')
 
-from sklearn.model_selection import cross_validate
+from sklearn.preprocessing import MinMaxScaler 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
@@ -21,14 +21,20 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
-
+# load data
+data_ready = pd.read_csv('data\\bundesliga_2016_ready.csv', index_col=0)
 X = data_ready.drop(['target'], axis= 1)
 y = data_ready['target']
+features = list(X.columns)
+
+# Normalization
+scaler = MinMaxScaler()
+X = scaler.fit_transform(X)
+X = pd.DataFrame(X)
+X.columns = features
 
 ## get train/test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1 , test_size=0.2)
-
-
 
 #########################################
 # Model 1 - logistic regression - Ridge #
@@ -46,7 +52,7 @@ param_grid = [{
 
 search = GridSearchCV(mdl_ridge, param_grid, cv=kfold, 
                       scoring = 'accuracy',
-                      return_train_score=True)
+                      return_train_score=True, iid=False)
 search.fit(X_train, y_train)
 mdl_ridge = search.best_estimator_
 
@@ -70,7 +76,7 @@ param_grid = [{
 
 search = GridSearchCV(mdl_knn, param_grid, cv=kfold, 
                       scoring = 'accuracy',
-                      return_train_score=True)
+                      return_train_score=True, iid=False)
 
 search.fit(X_train, y_train)
 mdl_knn = search.best_estimator_
@@ -96,7 +102,7 @@ param_grid = [{
 
 search = GridSearchCV(mdl_rf, param_grid, cv=kfold, 
                       scoring = 'accuracy',
-                      return_train_score=True)
+                      return_train_score=True, iid=False)
 
 search.fit(X_train, y_train)
 mdl_rf = search.best_estimator_
@@ -126,7 +132,7 @@ param_grid = [{
 
 search = GridSearchCV(mdl_mlp, param_grid, cv=kfold, 
                       scoring = 'accuracy',
-                      return_train_score=True)
+                      return_train_score=True, iid=False)
 
 search.fit(X_train, y_train)
 mdl_mlp = search.best_estimator_
@@ -171,7 +177,7 @@ param_grid = [{
 
 search = GridSearchCV(mdl_lasso, param_grid, cv=kfold, 
                       scoring = 'accuracy',
-                      return_train_score=True)
+                      return_train_score=True, iid=False)
 
 search.fit(X_ensemble, y_train.reset_index(drop=True))
 mdl_ensemble = search.best_estimator_

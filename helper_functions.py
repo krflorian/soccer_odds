@@ -10,7 +10,7 @@ import requests
 import pandas as pd
 
 # get API key
-key = open('data\rapid_api_key.txt', 'r').read()
+key = open('data\\rapid_api_key.txt', 'r').read()
 # create functions
 # get results
 def request_data(league='', fixtures_teams=''):
@@ -65,4 +65,24 @@ def get_rating_value(rating):
             rating_list.append(1)
     return rating_list
 
+# get ensemble features
+def get_ensemble_x(X, mdl_ridge, mdl_knn, mdl_rf, mdl_mlp):
+        # ensemble
+    y_hat_ridge = mdl_ridge.predict_proba(X)
+    y_hat_knn = mdl_knn.predict_proba(X)
+    y_hat_rf = mdl_rf.predict_proba(X)
+    y_hat_mlp = mdl_mlp.predict_proba(X)
 
+    # create dataframes with output probability values
+    y_hat_rf = pd.DataFrame(y_hat_rf)
+    y_hat_rf.columns = ['rf_0', 'rf_1', 'rf_3']
+    y_hat_knn = pd.DataFrame(y_hat_knn)
+    y_hat_knn.columns = ['knn_0', 'knn_1', 'knn_3']
+    y_hat_ridge = pd.DataFrame(y_hat_ridge)
+    y_hat_ridge.columns = ['ridge_0', 'ridge_1', 'ridge_3']
+    y_hat_mlp = pd.DataFrame(y_hat_mlp)
+    y_hat_mlp.columns = ['mlp_0', 'mlp_1', 'mlp_3']
+    
+    X_ensemble = y_hat_rf.join(y_hat_ridge).join(y_hat_knn).join(y_hat_mlp)
+    
+    return X_ensemble

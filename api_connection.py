@@ -9,13 +9,19 @@ Soccer API connection and data pipeline
 import os
 os.chdir('E:\soccer')
 
-
 import pandas as pd
 import helper_functions as sc
 
+# show leagues
+leagues = sc.request_leagues()
+for num in leagues:
+    if leagues[num]['country'] == 'Germany':
+        print(leagues[num])
+# 2016 = 54, 2017 = 35
+
 # load data
-fixtures = sc.request_data(league=54, fixtures_teams='fixtures')
-teams_info = sc.request_data(league=54, fixtures_teams='teams')
+fixtures = sc.request_data(league=35, fixtures_teams='fixtures')
+teams_info = sc.request_data(league=35, fixtures_teams='teams')
 
 # get teams
 teams = pd.DataFrame({'id': [], 'team': []})
@@ -35,8 +41,8 @@ for f in fixtures:
 results = results.reset_index(drop=True)
 
 # get results
-results['points_home'] = results.apply(lambda x: points(x['goals_home'], x['goals_away']), axis=1)
-results['points_away'] = results.apply(lambda x: points(x['goals_away'], x['goals_home']), axis=1)
+results['points_home'] = results.apply(lambda x: sc.points(x['goals_home'], x['goals_away']), axis=1)
+results['points_away'] = results.apply(lambda x: sc.points(x['goals_away'], x['goals_home']), axis=1)
 
 # setup dictionary
 rounds = results['round'].unique()
@@ -159,10 +165,10 @@ data_ready = (data.join(rating_1)
                   .drop(['team_1', 'team_2', 'rating_1', 'rating_2', 'round'], axis=1))
 
 # save csv files
-data_ready.to_csv('data\bundesliga_2016_ready.csv')
-data_ready.to_csv('data\bundesliga_2016_full.csv')
+data_ready.to_csv('data\\bundesliga_2016_ready.csv')
+data_ready.to_csv('data\\bundesliga_2016_full.csv')
 
-f = open("data\bundesliga_2016_dict.txt","w")
+f = open("data\\bundesliga_2016_dict.txt","w")
 f.write( str(table) )
 f.close()
 
