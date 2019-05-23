@@ -2,7 +2,7 @@
 Soccer fixtures prediction model. Uses ensemble of different machine learning models to increase prediction accuracy.
 
 
-The Jupyter notebook gives an overview of ensemble and prediction accuracy
+The Jupyter notebook simulation gives an overview of ensemble and prediction accuracy.
 
 New Features to be added:
 - Head to Head
@@ -28,10 +28,10 @@ Train ensemble module:
 - shows test set prediction accuracy
 
 
-Simulation Module: (not yet implemented)
+Simulation Module:
 - Train Ensemble Models on last season
 - Set Budget for betting
-- Get Betting Odds for new season
+- Get Betting Odds for new season (not yet implemented)
 - Setup training data for new season
 - loop over gamedays (predict games,
 					  bet according to threshold probability,

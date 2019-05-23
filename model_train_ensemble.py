@@ -9,6 +9,8 @@ Ensemble Machine Learning
 import os
 os.chdir('E:\soccer')
 
+import helper_functions as sc
+
 from sklearn.preprocessing import MinMaxScaler 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import GridSearchCV
@@ -144,25 +146,8 @@ print(search.best_score_)
 # Ensemble - setup logistic regression - lasso  #
 #################################################
 
-# predict all models
-y_hat_ridge = mdl_ridge.predict_proba(X_train)
-y_hat_knn = mdl_knn.predict_proba(X_train)
-y_hat_rf = mdl_rf.predict_proba(X_train)
-y_hat_mlp = mdl_mlp.predict_proba(X_train)
-
-# create dataframes with output probability values
-y_hat_rf = pd.DataFrame(y_hat_rf)
-y_hat_rf.columns = ['rf_0', 'rf_1', 'rf_3']
-y_hat_knn = pd.DataFrame(y_hat_knn)
-y_hat_knn.columns = ['knn_0', 'knn_1', 'knn_3']
-y_hat_ridge = pd.DataFrame(y_hat_ridge)
-y_hat_ridge.columns = ['ridge_0', 'ridge_1', 'ridge_3']
-y_hat_mlp = pd.DataFrame(y_hat_mlp)
-y_hat_mlp.columns = ['mlp_0', 'mlp_1', 'mlp_3']
-
-X_ensemble = y_hat_rf.join(y_hat_ridge).join(y_hat_knn).join(y_hat_mlp)
-X_ensemble.head()
-
+# get features
+X_ensemble = sc.get_ensemble_x(X_train, mdl_ridge, mdl_knn, mdl_rf, mdl_mlp)
 
 # train logistic regression ensemble
 mdl_lasso = LogisticRegression(penalty='l1', solver='liblinear', max_iter=100, multi_class = 'auto')
@@ -200,21 +185,7 @@ print(search.best_score_)
 ############################
 
 # rename!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-y_hat_ridge = mdl_ridge.predict_proba(X_test)
-y_hat_knn = mdl_knn.predict_proba(X_test)
-y_hat_rf = mdl_rf.predict_proba(X_test)
-y_hat_mlp = mdl_mlp.predict_proba(X_test)
-
-y_hat_rf = pd.DataFrame(y_hat_rf)
-y_hat_rf.columns = ['rf_0', 'rf_1', 'rf_3']
-y_hat_knn = pd.DataFrame(y_hat_knn)
-y_hat_knn.columns = ['knn_0', 'knn_1', 'knn_3']
-y_hat_ridge = pd.DataFrame(y_hat_ridge)
-y_hat_ridge.columns = ['ridge_0', 'ridge_1', 'ridge_3']
-y_hat_mlp = pd.DataFrame(y_hat_mlp)
-y_hat_mlp.columns = ['mlp_0', 'mlp_1', 'mlp_3']
-
-X_ensemble = y_hat_rf.join(y_hat_ridge).join(y_hat_knn).join(y_hat_mlp)
+X_ensemble = sc.get_ensemble_x(X_test, mdl_ridge, mdl_knn, mdl_rf, mdl_mlp)
 
 coefficients = pd.DataFrame({'coefficients: ': list(X_ensemble.columns),
                              'win': mdl_ensemble.coef_[0],

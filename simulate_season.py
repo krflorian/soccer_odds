@@ -102,10 +102,13 @@ for gameday in data_new['round'].unique():
     X_ensemble = sc.get_ensemble_x(X, mdl_ridge, mdl_knn, mdl_rf, mdl_mlp)
     
     y_hat = mdl_lasso.predict(X_ensemble)
-    
+    y_hat_proba = mdl_lasso.predict_proba(X_ensemble)
+    bet = [any(y_hat_proba[i] > 0.8) for i in range(len(y_hat_proba))]
+
     results = results.append(pd.DataFrame({'gameday': list(np.repeat(gameday, len(y))),
                                            'y':y,
-                                           'y_hat':y_hat}))
+                                           'y_hat':y_hat,
+                                           'bet': bet}))
     
     # retrain models
     X_train = X_train.append(X)
@@ -127,13 +130,13 @@ print('final accuracy of ensemble on test set = \n', accuracy_score(results['y']
 print(confusion_matrix(results['y'], results['y_hat']))  
 print(classification_report(results['y'], results['y_hat'])) 
 
+results_bet = results[results['bet:'] == True]
+print('final accuracy of ensemble on test set with threshold = \n', accuracy_score(results_bet['y'], results_bet['y_hat']))
+print('number of bets = ', len(results_bet))
 
 # final accuracy of ensemble on test set BL 2017 without retraining = 0.5686274509803921
 # final accuracy of ensemble on test set BL 2017 with retraining = 0.6029411764705882
-
-
-
-
+# final accuracy of ensemble on test set BL 2017 with retreaining and threshold = 0.6734104046242775
 
 #########################################################################################
 # read and clean data
