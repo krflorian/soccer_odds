@@ -76,7 +76,7 @@ def get_rating_value(rating):
     return rating_list
 	
 # get sample with features and target
-def get_sample_row(gameday, last_gameday, team_1, team_2, results, i, table):
+def get_sample_row(gameday, last_gameday, team_1, team_2, results, i, table, home_away):
     form_ratings_1 = get_rating_value(table[last_gameday][team_1]['form_rating'])
     form_ratings_2 = get_rating_value(table[last_gameday][team_2]['form_rating'])
     form_weighted_1 = sum([table[last_gameday][team_1]['form'][i]*form_ratings_1[i] for i in range(len(form_ratings_1))])
@@ -93,38 +93,37 @@ def get_sample_row(gameday, last_gameday, team_1, team_2, results, i, table):
         'form_1': sum(table[last_gameday][team_1]['form'])/len(table[last_gameday][team_1]['form']),
         'form_weighted_1': form_weighted_1, 
         'form_possession_1': sum(table[last_gameday][team_1]['form_possession'])/len(table[last_gameday][team_1]['form_possession']),
-        'form_pass_acc_1': sum(table[last_gameday][team_1]['form_pass_acc'])/len(table[last_gameday][team_1]['form_pass_acc']),   
-        'form_shot_acc_1': sum(table[last_gameday][team_1]['form_shot_acc'])/len(table[last_gameday][team_1]['form_shot_acc']),
+        'form_pass_acc_1': sum(table[last_gameday][team_1]['form_passes'])/len(table[last_gameday][team_1]['form_passes']),   
+        'form_shot_acc_1': sum(table[last_gameday][team_1]['form_accuracy'])/len(table[last_gameday][team_1]['form_accuracy']),
+        'form_duels_1': sum(table[last_gameday][team_1]['form_duels'])/len(table[last_gameday][team_1]['form_duels']),
+        'form_offense_1': sum(table[last_gameday][team_1]['form_offense'])/len(table[last_gameday][team_1]['form_offense']),
         'team_2': team_2,
         'goal_difference_2': table[last_gameday][team_2]['goal_difference'],
         'rating_2': table[last_gameday][team_2]['rating'],
         'form_2': sum(table[last_gameday][team_2]['form'])/len(table[last_gameday][team_2]['form']),
         'form_weighted_2' : form_weighted_2,
         'form_possession_2': sum(table[last_gameday][team_2]['form_possession'])/len(table[last_gameday][team_2]['form_possession']),
-        'form_pass_acc_2': sum(table[last_gameday][team_2]['form_pass_acc'])/len(table[last_gameday][team_2]['form_pass_acc']),      
-        'form_shot_acc_2': sum(table[last_gameday][team_2]['form_shot_acc'])/len(table[last_gameday][team_2]['form_shot_acc']),
-        'home_away': [1],
-        'target': [results.loc[i]['points_home']] })
-    return sample	
+        'form_pass_acc_2': sum(table[last_gameday][team_2]['form_passes'])/len(table[last_gameday][team_2]['form_passes']),      
+        'form_shot_acc_2': sum(table[last_gameday][team_2]['form_accuracy'])/len(table[last_gameday][team_2]['form_accuracy']),
+        'form_duels_2': sum(table[last_gameday][team_2]['form_duels'])/len(table[last_gameday][team_2]['form_duels']),        
+        'form_offense_2': sum(table[last_gameday][team_2]['form_offense'])/len(table[last_gameday][team_2]['form_offense']),
+        'home_away': [home_away],
+        'target': [results.loc[i]['points_home']],
+        'target_possession': stats[last_gameday][team_1]['Pässe (%)'][:2]})
+    return sample
 
 # get ensemble features
-def get_ensemble_x(X, mdl_ridge, mdl_knn, mdl_rf, mdl_mlp):
-        # ensemble
-    y_hat_ridge = mdl_ridge.predict_proba(X)
-    y_hat_knn = mdl_knn.predict_proba(X)
-    y_hat_rf = mdl_rf.predict_proba(X)
-    y_hat_mlp = mdl_mlp.predict_proba(X)
+def get_ensemble_x(X, model_list):    
+    i = 0
+    for model in model_list:
+        i += 1
+        mdl_name = type(model).__name__
+        y_hat = model.predict_proba(X)
+        y_hat = pd.DataFrame(y_hat)
+        y_hat.columns = [mdl_name+'0', mdl_name+'1', mdl_name+'3']
+        if i == 1:
+            X_ensemble = y_hat
+        else:
+            X_ensemble = X_ensemble.join(y_hat)
+    return X_ensemble 
 
-    # create dataframes with output probability values
-    y_hat_rf = pd.DataFrame(y_hat_rf)
-    y_hat_rf.columns = ['rf_0', 'rf_1', 'rf_3']
-    y_hat_knn = pd.DataFrame(y_hat_knn)
-    y_hat_knn.columns = ['knn_0', 'knn_1', 'knn_3']
-    y_hat_ridge = pd.DataFrame(y_hat_ridge)
-    y_hat_ridge.columns = ['ridge_0', 'ridge_1', 'ridge_3']
-    y_hat_mlp = pd.DataFrame(y_hat_mlp)
-    y_hat_mlp.columns = ['mlp_0', 'mlp_1', 'mlp_3']
-    
-    X_ensemble = y_hat_rf.join(y_hat_ridge).join(y_hat_knn).join(y_hat_mlp)
-    
-    return X_ensemble
