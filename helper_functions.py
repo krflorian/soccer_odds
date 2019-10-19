@@ -10,7 +10,7 @@ import requests
 import pandas as pd
 
 # get API key
-key = open('data\\rapid_api_key.txt', 'r').read()
+key = open('data/rapid_api_key.txt', 'r').read()
 # create functions
 # get results
 def request_data(league='', fixtures_teams=''):
@@ -76,7 +76,7 @@ def get_rating_value(rating):
     return rating_list
 	
 # get sample with features and target
-def get_sample_row(gameday, last_gameday, team_1, team_2, results, i, table, home_away):
+def get_sample_row(gameday, last_gameday, team_1, team_2, results, i, table, stats, home_away):
     form_ratings_1 = get_rating_value(table[last_gameday][team_1]['form_rating'])
     form_ratings_2 = get_rating_value(table[last_gameday][team_2]['form_rating'])
     form_weighted_1 = sum([table[last_gameday][team_1]['form'][i]*form_ratings_1[i] for i in range(len(form_ratings_1))])
@@ -108,8 +108,13 @@ def get_sample_row(gameday, last_gameday, team_1, team_2, results, i, table, hom
         'form_duels_2': sum(table[last_gameday][team_2]['form_duels'])/len(table[last_gameday][team_2]['form_duels']),        
         'form_offense_2': sum(table[last_gameday][team_2]['form_offense'])/len(table[last_gameday][team_2]['form_offense']),
         'home_away': [home_away],
+        'match_id': [results.loc[i]['match_id']],
         'target': [results.loc[i]['points_home']],
-        'target_possession': stats[last_gameday][team_1]['Pässe (%)'][:2]})
+        'target_possession': stats[last_gameday][team_1]['Pässe (%)'][:2],
+        'match_date': [results.loc[i]['match_date']],
+        'B365H': [results.loc[i]['B365H']],
+        'B365D': [results.loc[i]['B365D']],
+        'B365A': [results.loc[i]['B365A']],})
     return sample
 
 # get ensemble features
