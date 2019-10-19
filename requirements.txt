@@ -1,0 +1,10 @@
+
+
+pandas
+numpy
+seaborn
+scikit-learn
+requests
+beautifulsoup4
+
+
