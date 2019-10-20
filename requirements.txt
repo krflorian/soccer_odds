@@ -6,5 +6,6 @@ seaborn
 scikit-learn
 requests
 beautifulsoup4
+joblib
 
 
